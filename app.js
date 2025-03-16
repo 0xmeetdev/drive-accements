@@ -1,19 +1,32 @@
 const express = require("express");
-var cors = require('cors')
+const cors = require('cors');
 const auth = require("./auth/auth");
+const fileRoutes = require("./routes/files/fileRoutes");
+const path = require("path");
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
-
+// Middleware
 app.use(express.json());
-app.use(cors())
-app.use("/auth",auth);
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routes
+app.use("/api/auth", auth);
+app.use("/api/files", fileRoutes);
+
+// Root route
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Google Drive Clone API is running!");
 });
 
+// Start server
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
